@@ -71,9 +71,6 @@ p_norm_number = args.p_norm_coeff
 quad_degree = args.quad_degree
 penalty_param = args.penalty_param
 
-from firedrake import PETSc
-
-print = lambda x: PETSc.Sys.Print(x, comm=COMM_SELF)
 assert inner_product == "L2" or inner_product == "euclidean"
 print(f"inner product is: {inner_product}")
 
@@ -98,20 +95,16 @@ mu, lmbda = Constant(E / (2 * (1 + nu))), Constant(E * nu / ((1 + nu) * (1 - 2 *
 
 # Helmholtz solver
 RHO = FunctionSpace(mesh, "DG", 0)
+RHOF = FunctionSpace(mesh, "CG", 1)
 with stop_annotating():
     rho = interpolate(Constant(0.5), RHO)
-af, b = TrialFunction(RHO), TestFunction(RHO)
+af, b = TrialFunction(RHOF), TestFunction(RHOF)
 
 filter_radius = Constant(1.2)
-x, y = SpatialCoordinate(mesh)
-with stop_annotating():
-    x_ = interpolate(x, RHO)
-    y_ = interpolate(y, RHO)
-Delta_h = sqrt(jump(x_) ** 2 + jump(y_) ** 2)
-aH = filter_radius * jump(af) / Delta_h * jump(b) * dS + af * b * dx
+aH = filter_radius * inner(grad(af), grad(b)) * dx + af * b * dx
 LH = rho * b * dx
 
-rhof = Function(RHO)
+rhof = Function(RHOF)
 solver_params = {
     "ksp_type": "preonly",
     "pc_type": "lu",
@@ -196,7 +189,7 @@ VolControl = Control(Vol)
 with stop_annotating():
     Vlimit = assemble(Constant(1.0) * dx(1, domain=mesh)) * 1e-8
 
-rho_viz_f = Function(RHO, name="rho")
+rho_viz_f = Function(RHOF, name="rho filtered")
 plot_file = f"{output_dir}/design_{uniform}_{inner_product}.pvd"
 controls_f = File(plot_file)
 vonmises_plot_file = File(
@@ -289,9 +282,9 @@ for ramp_p_val, max_iter in zip(ramp_p_arr, max_iter_arr):
 
     solver = MMASolver(problem, parameters=parameters_mma)
 
-    rho_opt = solver.solve()
+    results = solver.solve()
     with stop_annotating():
-        rho.assign(rho_opt)
+        rho.assign(results['control'])
 
 with open(f"{output_dir}/finished_{uniform}_{inner_product}.txt", "w") as f:
     f.write("Done")

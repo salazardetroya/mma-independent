@@ -1,11 +1,12 @@
 // This code was created by pygmsh vunknown.
 size = 1.0;
+size_fact = 0.02;
 p0 = newp;
 Point(p0) = {0.0, 0.0, 0.0, size};
 p1 = newp;
 Point(p1) = {100, 0.0, 0.0, size};
 p2 = newp;
-Point(p2) = {100, 40, 0.0, size};
+Point(p2) = {100, 40, 0.0, size * size_fact};
 p3 = newp;
 Point(p3) = {60.0, 40.0, 0.0, size};
 p4 = newp;
@@ -21,9 +22,9 @@ Point(p8) = {0.0, 60.0, 0.0, size};//+//+
 p9 = newp;
 Point(p9) = {0.0, 40.0, 0.0, size};//+//+//+//+
 p10 = newp;
-Point(p10) = {40.0, 40.0, 0.0, size * 0.01};
+Point(p10) = {40.0, 40.0, 0.0, size * size_fact};
 p11 = newp;
-Point(p11) = {95.0, 40.0, 0.0, size};//+
+Point(p11) = {95.0, 40.0, 0.0, size * size_fact};//+
 Line(1) = {8, 9};
 //+
 Line(2) = {9, 10};
