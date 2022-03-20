@@ -43,6 +43,7 @@ uniform = args.uniform
 inner_product = args.inner_product
 output_dir = args.output_dir
 
+
 assert inner_product == "L2" or inner_product == "euclidean"
 assert uniform == 0 or uniform == 1
 print(f"inner product is: {inner_product}")
@@ -69,18 +70,15 @@ mu, lmbda = Constant(E / (2 * (1 + nu))), Constant(E * nu / ((1 + nu) * (1 - 2 *
 
 # Helmholtz solver
 RHO = FunctionSpace(mesh, "DG", 0)
-rho = interpolate(Constant(0.1), RHO)
-af, b = TrialFunction(RHO), TestFunction(RHO)
+RHOF = FunctionSpace(mesh, "CG", 1)
+rho = interpolate(Constant(0.01), RHO)
+af, b = TrialFunction(RHOF), TestFunction(RHOF)
 
 filter_radius = Constant(0.2)
-x, y = SpatialCoordinate(mesh)
-x_ = interpolate(x, RHO)
-y_ = interpolate(y, RHO)
-Delta_h = sqrt(jump(x_) ** 2 + jump(y_) ** 2)
-aH = filter_radius * jump(af) / Delta_h * jump(b) * dS + af * b * dx
+aH = filter_radius * inner(grad(af), grad(b)) * dx + af * b * dx
 LH = rho * b * dx
 
-rhof = Function(RHO)
+rhof = Function(RHOF)
 solver_params = {
     "ksp_type": "preonly",
     "pc_type": "lu",
@@ -129,16 +127,21 @@ VolControl = Control(Vol)
 with stop_annotating():
     Vlimit = assemble(Constant(1.0) * dx(domain=mesh)) * 0.3
 
-rho_viz_f = Function(RHO, name="rho")
+rho_viz_f = Function(RHOF, name="rho filtered")
 plot_file = f"{output_dir}/design_{uniform}_{inner_product}.pvd"
 print(plot_file)
 controls_f = File(plot_file)
 
+import itertools
+
+global_counter1 = itertools.count()
 
 def deriv_cb(j, dj, rho):
-    with stop_annotating():
-        rho_viz_f.assign(rhofControl.tape_value())
-        controls_f.write(rho_viz_f)
+    iter = next(global_counter1)
+    if iter % 10 == 0:
+        with stop_annotating():
+            rho_viz_f.assign(rhofControl.tape_value())
+            controls_f.write(rho_viz_f)
 
 
 Jhat = ReducedFunctional(J, c, derivative_cb_post=deriv_cb)
@@ -150,7 +153,6 @@ class VolumeConstraint(InequalityConstraint):
         self.Vhat = Vhat
         self.Vlimit = float(Vlimit)
         self.VolControl = VolControl
-        self.tmpvec = Function(RHO)
 
     def function(self, m):
         # Compute the integral of the control over the domain
