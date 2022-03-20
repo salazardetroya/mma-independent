@@ -69,18 +69,16 @@ mu, lmbda = Constant(E / (2 * (1 + nu))), Constant(E * nu / ((1 + nu) * (1 - 2 *
 
 # Helmholtz solver
 RHO = FunctionSpace(mesh, "DG", 0)
-rho = interpolate(Constant(0.1), RHO)
-af, b = TrialFunction(RHO), TestFunction(RHO)
+RHOF = FunctionSpace(mesh, "CG", 1)
+with stop_annotating():
+    rho = interpolate(Constant(0.1), RHO)
+af, b = TrialFunction(RHOF), TestFunction(RHOF)
 
 filter_radius = Constant(0.8)
-x, y = SpatialCoordinate(mesh)
-x_ = interpolate(x, RHO)
-y_ = interpolate(y, RHO)
-Delta_h = sqrt(jump(x_) ** 2 + jump(y_) ** 2)
-aH = filter_radius * jump(af) / Delta_h * jump(b) * dS + af * b * dx
+aH = filter_radius * inner(grad(af), grad(b)) * dx + af * b * dx
 LH = rho * b * dx
 
-rhof = Function(RHO)
+rhof = Function(RHOF)
 solver_params = {
     "ksp_type": "preonly",
     "pc_type": "lu",
@@ -146,13 +144,9 @@ VolControl = Control(Vol)
 with stop_annotating():
     Vlimit = assemble(Constant(1.0) * dx(domain=mesh)) * 0.3
 
-rho_viz_f = Function(RHO, name="rho")
+rho_viz_f = Function(RHOF, name="rho filtered")
 plot_file = f"{output_dir}/design_{uniform}_{inner_product}.pvd"
 controls_f = File(plot_file)
-derivative_f = File(f"{output_dir}/derivative_{uniform}_{inner_product}.pvd")
-deriv_viz = Function(RHO, name="dj")
-u_sol_f = File(f"{output_dir}/u_sol_{uniform}_{inner_product}.pvd")
-u_sol_viz = Function(V, name="u_sol")
 
 import itertools
 
@@ -166,12 +160,6 @@ def deriv_cb(j, dj, rho):
             rho_viz_f.assign(rhofControl.tape_value())
             controls_f.write(rho_viz_f)
 
-            u_sol_viz.assign(u_control.tape_value())
-            u_sol_f.write(u_sol_viz)
-
-            deriv_viz.assign(dj)
-            derivative_f.write(deriv_viz)
-
 
 Jhat = ReducedFunctional(J, c, derivative_cb_post=deriv_cb)
 Volhat = ReducedFunctional(Vol, c)
@@ -182,7 +170,6 @@ class VolumeConstraint(InequalityConstraint):
         self.Vhat = Vhat
         self.Vlimit = float(Vlimit)
         self.VolControl = VolControl
-        self.tmpvec = Function(RHO)
 
     def function(self, m):
         # Compute the integral of the control over the domain
