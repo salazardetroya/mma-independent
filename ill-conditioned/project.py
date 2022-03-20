@@ -27,17 +27,12 @@ def launch_opti(job):
     ref_dict = {"compliance": {0: 0, 1: 4},
                 "stress": {0: 0, 1: 4},
                 "mechanism": {0: 0, 1: 2}}
-    if plt == "Linux":
-        simulation = "source /g/g92/miguel/workspace/firedrake_setup.sh \n"
-    else:
-        simulation = ""
+    simulation = ""
 
     for mesh, inner_product in itertools.product(
         meshes, inner_products
     ):
         output =  f"{job.ws}/output_{mesh}_{inner_product}.txt"
-        if plt == "Linux":
-            simulation += f"srun --output={output} "
         simulation += f"python3 {job.sp.case}.py \
                 --output_dir {job.ws} \
                 --uniform {mesh}\
@@ -47,10 +42,7 @@ def launch_opti(job):
             simulation += f" --quad_degree {job.sp.quad_degree} \
                             --p_norm_coeff {job.sp.p_norm_coeff} \
                             --penalty_param {job.sp.penalty_param} "
-        if plt == "Linux":
-            simulation += "\n"
-        else:
-            simulation += f" &> {job.ws}/output_{mesh}_{inner_product}.txt\n"
+        simulation += f" > {job.ws}/output_{mesh}_{inner_product}.txt\n"
     return simulation
 
 
@@ -64,10 +56,7 @@ def check_plots(job):
 @FlowProject.pre(check_finished)
 @FlowProject.post(check_plots)
 def plot_convergence(job):
-    if plt == "Linux":
-        post_process = "srun "
-    else:
-        post_process = ""
+    post_process = ""
 
     cost_log = "--cost_log" if job.sp['case'] != 'mechanism' else ""
     post_process += f"python3 plot_history.py \
@@ -91,11 +80,7 @@ def check_figures(job):
 @FlowProject.pre(check_finished)
 @FlowProject.post(check_figures)
 def plot_figures(job):
-    if plt == "Linux":
-        post_process = "srun "
-    else:
-        post_process = ""
-
+    post_process = ""
 
     for mesh, inner_product in itertools.product(
         meshes, inner_products

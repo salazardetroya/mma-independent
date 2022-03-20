@@ -2,16 +2,16 @@
 import signac
 import numpy as np
 import itertools
-from seurat import grid
+
+
+def grid(gridspec):
+    for values in itertools.product(*gridspec.values()):
+        yield dict(zip(gridspec.keys(), values))
 
 import platform
 plt = platform.system()
 
-workspace = "./"
-if plt == "Linux":
-    workspace = "/p/lscratchh/miguel/topopt_gcmma/uniform/"
-elif plt == "Darwin":
-    workspace = "./workspace/"
+workspace = "./workspace/"
 
 project = signac.init_project('gcmma', workspace=workspace)
 

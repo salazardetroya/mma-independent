@@ -22,7 +22,7 @@ filename = args.filename
 
 # create a new 'PVD Reader'
 control_iterations_fpvd = PVDReader(FileName=results_dir + "/" + filename + ".pvd")
-control_iterations_fpvd.PointArrays = ['rho']
+control_iterations_fpvd.PointArrays = ['rho filtered']
 
 # get animation scene
 animationScene1 = GetAnimationScene()
@@ -42,26 +42,26 @@ renderView1 = GetActiveViewOrCreate('RenderView')
 control_iterations_fpvdDisplay = Show(control_iterations_fpvd, renderView1)
 
 # get color transfer function/color map for 'rho'
-rhoLUT = GetColorTransferFunction('rho')
+rhoLUT = GetColorTransferFunction('rho filtered')
 
 # get opacity transfer function/opacity map for 'rho'
-rhoPWF = GetOpacityTransferFunction('rho')
+rhoPWF = GetOpacityTransferFunction('rho filtered')
 
 # trace defaults for the display properties.
 control_iterations_fpvdDisplay.Representation = 'Surface'
-control_iterations_fpvdDisplay.ColorArrayName = ['POINTS', 'rho']
+control_iterations_fpvdDisplay.ColorArrayName = ['POINTS', 'rho filtered']
 control_iterations_fpvdDisplay.LookupTable = rhoLUT
-control_iterations_fpvdDisplay.OSPRayScaleArray = 'rho'
+control_iterations_fpvdDisplay.OSPRayScaleArray = 'rho filtered'
 control_iterations_fpvdDisplay.OSPRayScaleFunction = 'PiecewiseFunction'
 control_iterations_fpvdDisplay.SelectOrientationVectors = 'None'
 control_iterations_fpvdDisplay.ScaleFactor = 0.16
-control_iterations_fpvdDisplay.SelectScaleArray = 'rho'
+control_iterations_fpvdDisplay.SelectScaleArray = 'rho filtered'
 control_iterations_fpvdDisplay.GlyphType = 'Arrow'
-control_iterations_fpvdDisplay.GlyphTableIndexArray = 'rho'
+control_iterations_fpvdDisplay.GlyphTableIndexArray = 'rho filtered'
 control_iterations_fpvdDisplay.GaussianRadius = 0.008
-control_iterations_fpvdDisplay.SetScaleArray = ['POINTS', 'rho']
+control_iterations_fpvdDisplay.SetScaleArray = ['POINTS', 'rho filtered']
 control_iterations_fpvdDisplay.ScaleTransferFunction = 'PiecewiseFunction'
-control_iterations_fpvdDisplay.OpacityArray = ['POINTS', 'rho']
+control_iterations_fpvdDisplay.OpacityArray = ['POINTS', 'rho filtered']
 control_iterations_fpvdDisplay.OpacityTransferFunction = 'PiecewiseFunction'
 control_iterations_fpvdDisplay.DataAxesGrid = 'GridAxesRepresentation'
 control_iterations_fpvdDisplay.PolarAxes = 'PolarAxesRepresentation'
