@@ -103,7 +103,7 @@ INLET = 2
 OUTLET = 3
 ROLLERS = 4
 k_in = Constant(1.0 / 3.0)
-k_out = Constant(1.0e-3 / 3.0)
+k_out = Constant(1.0e-2 / 3.0)
 eps = Constant(1e-5)
 ramp_rho = ramp(rhof, ramp_p=20.0, val_0=1e-5)
 
@@ -200,7 +200,7 @@ problem = MinimizationProblem(
 )
 
 parameters_mma = {
-    "move": 0.2,
+    "move": 0.1,
     "maximum_iterations": 200,
     "m": 1,
     "IP": 0,

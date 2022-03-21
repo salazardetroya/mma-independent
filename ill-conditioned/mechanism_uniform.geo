@@ -44,12 +44,12 @@ Transfinite Curve {7} = 2 Using Progression 1;
 //+
 Transfinite Curve {6} = 25 Using Progression 1;
 //+
-Physical Curve("0") = {7};
+Physical Curve(1) = {7};
 //+
-Physical Curve("1") = {5};
+Physical Curve(2) = {5};
 //+
-Physical Curve("2") = {3};
+Physical Curve(3) = {3};
 //+
-Physical Curve("3") = {4};
+Physical Curve(4) = {4};
 //+
-Physical Surface("1") = {1};
+Physical Surface(1) = {1};
