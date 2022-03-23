@@ -44,6 +44,14 @@ control_iterations_fpvdDisplay = Show(control_iterations_fpvd, renderView1)
 # get color transfer function/color map for 'rho'
 rhoLUT = GetColorTransferFunction('rho filtered')
 
+# Apply a preset using its name. Note this may not work as expected when presets have duplicate names.
+rhoLUT.ApplyPreset('X Ray', True)
+
+# Properties modified on rhoLUT
+rhoLUT.EnableOpacityMapping = 1
+
+LoadPalette(paletteName='WhiteBackground')
+
 # get opacity transfer function/opacity map for 'rho'
 rhoPWF = GetOpacityTransferFunction('rho filtered')
 
@@ -101,25 +109,6 @@ control_iterations_fpvdDisplay.SetScalarBarVisibility(renderView1, False)
 
 # Hide orientation axes
 renderView1.OrientationAxesVisibility = 0
-
-# create a new 'Text'
-text1 = Text()
-
-# Properties modified on text1
-text1.Text = filename
-
-# show data in view
-text1Display = Show(text1, renderView1)
-
-# update the view to ensure updated data information
-renderView1.Update()
-
-# Properties modified on text1Display
-text1Display.WindowLocation = 'AnyLocation'
-text1Display.Position = [0.570573, 0.221482]
-text1Display.Color = [0.0, 0.0, 0.0]
-text1Display.FontSize = 9
-
 
 # update the view to ensure updated data information
 renderView1.Update()

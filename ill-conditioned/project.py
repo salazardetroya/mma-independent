@@ -85,9 +85,10 @@ def plot_figures(job):
     for mesh, inner_product in itertools.product(
         meshes, inner_products
     ):
+        filename = f"design_{mesh}_{inner_product}"
         post_process += f"pvpython screenshot_design.py \
-                --filename design_{mesh}_{inner_product} \
-                --results_dir {job.ws}\n"
+                --filename {filename} \
+                --results_dir {job.ws} && convert {job.ws}/{filename}.png -trim {job.ws}/{filename}.png\n"
 
     return post_process
 
