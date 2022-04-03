@@ -103,9 +103,9 @@ INLET = 2
 OUTLET = 3
 ROLLERS = 4
 k_in = Constant(1.0 / 3.0)
-k_out = Constant(1.0e-4 / 3.0)
-eps = Constant(1e-5)
-ramp_rho = ramp(rhof, ramp_p=20.0, val_0=1e-5)
+k_out = Constant(5.0e-4 / 3.0)
+eps = Constant(1e-8)
+ramp_rho = ramp(rhof, ramp_p=10.0, val_0=1e-5)
 
 p = Constant(3.0)
 
